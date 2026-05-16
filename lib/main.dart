@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/app_theme.dart';
+import 'presentation/providers/theme_provider.dart';
 import 'presentation/router/app_router.dart';
 
 void main() {
@@ -15,10 +16,12 @@ class CoffeeShopApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final themeMode = ref.watch(themeNotifierProvider).valueOrNull ?? ThemeMode.light;
     return MaterialApp.router(
       title: 'Coffee Shop',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
