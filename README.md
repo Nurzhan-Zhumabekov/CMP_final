@@ -84,24 +84,31 @@ Product data is fetched from the public sampleapis.com service:
 
 ## Screenshots
 
+Login screen
 ![Login screen](screenshots/login.png)
 
+Register screen
 ![Register screen](screenshots/register.png)
 
-![Menu — hot drinks](screenshots/menu_hot.png)
+Menu — hot drinks
+![Menu hot](screenshots/menu_hot.png)
 
-![Menu — iced drinks](screenshots/menu_iced.png)
+Menu — iced drinks
+![Menu iced](screenshots/menu_iced.png)
 
+Product detail
 ![Product detail](screenshots/product_detail.png)
 
+Cart
 ![Cart](screenshots/cart.png)
 
-![Favorites](screenshots/favorites.png)
+Order history
+![Orders](screenshots/orders.png)
 
-![Order history](screenshots/orders.png)
+Search with history
+![Search history](screenshots/search_history.png)
 
-![Search with history](screenshots/search_history.png)
-
+Settings
 ![Settings](screenshots/settings.png)
 
 ---
