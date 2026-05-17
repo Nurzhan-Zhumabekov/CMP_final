@@ -25,6 +25,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: ':id',
+                    redirect: (context, state) =>
+                        state.extra is Product ? null : '/menu',
                     builder: (context, state) => ProductDetailScreen(
                       product: state.extra as Product,
                     ),
