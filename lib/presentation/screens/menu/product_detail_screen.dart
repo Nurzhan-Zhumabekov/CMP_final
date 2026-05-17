@@ -1,25 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/product.dart';
+import '../../providers/cart_provider.dart';
+import '../../providers/favorites_provider.dart';
 
-class ProductDetailScreen extends StatelessWidget {
+class ProductDetailScreen extends ConsumerWidget {
   final Product product;
 
   const ProductDetailScreen({super.key, required this.product});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isFav = ref.watch(favoritesProvider).contains(product.id);
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
+            actions: [
+              IconButton(
+                icon: Icon(
+                  isFav ? Icons.favorite : Icons.favorite_outline,
+                  color: isFav ? Colors.redAccent : null,
+                ),
+                onPressed: () =>
+                    ref.read(favoritesProvider.notifier).toggle(product),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Image.network(
                 product.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(
+                errorBuilder: (ctx, err, st) => Container(
                   color: const Color(0xFFEFEBE9),
                   child: const Icon(
                     Icons.coffee,
@@ -54,8 +69,9 @@ class ProductDetailScreen extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).colorScheme.primaryContainer,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primaryContainer,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -110,7 +126,8 @@ class ProductDetailScreen extends StatelessWidget {
                         .map(
                           (ing) => Chip(
                             label: Text(ing),
-                            avatar: const Icon(Icons.local_cafe, size: 16),
+                            avatar:
+                                const Icon(Icons.local_cafe, size: 16),
                           ),
                         )
                         .toList(),
@@ -120,16 +137,28 @@ class ProductDetailScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.favorite_outline),
-                          label: const Text('Save'),
+                          onPressed: () =>
+                              ref.read(favoritesProvider.notifier).toggle(product),
+                          icon: Icon(isFav
+                              ? Icons.favorite
+                              : Icons.favorite_outline),
+                          label: Text(isFav ? 'Saved' : 'Save'),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         flex: 2,
                         child: FilledButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            ref.read(cartProvider.notifier).add(product);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    '${product.title} added to cart'),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          },
                           icon: const Icon(Icons.shopping_cart),
                           label: const Text('Add to Cart'),
                         ),

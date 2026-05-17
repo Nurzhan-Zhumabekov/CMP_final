@@ -19,3 +19,20 @@ final currentProductsProvider = Provider<AsyncValue<List<Product>>>((ref) {
       ? ref.watch(hotCoffeesProvider)
       : ref.watch(icedCoffeesProvider);
 });
+
+final searchQueryProvider = StateProvider<String>((ref) => '');
+
+final filteredProductsProvider = Provider<AsyncValue<List<Product>>>((ref) {
+  final query = ref.watch(searchQueryProvider).toLowerCase().trim();
+  final productsAsync = ref.watch(currentProductsProvider);
+
+  if (query.isEmpty) return productsAsync;
+
+  return productsAsync.whenData(
+    (products) => products
+        .where((p) =>
+            p.title.toLowerCase().contains(query) ||
+            p.description.toLowerCase().contains(query))
+        .toList(),
+  );
+});

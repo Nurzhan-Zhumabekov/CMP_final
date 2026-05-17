@@ -11,7 +11,7 @@ class MenuScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedCategory = ref.watch(selectedCategoryProvider);
-    final productsAsync = ref.watch(currentProductsProvider);
+    final productsAsync = ref.watch(filteredProductsProvider);
 
     return CustomScrollView(
       slivers: [
@@ -33,7 +33,7 @@ class MenuScreen extends ConsumerWidget {
                 Image.network(
                   'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800',
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
+                  errorBuilder: (ctx, err, st) => Container(
                     color: const Color(0xFF6F4E37),
                     child: const Icon(
                       Icons.coffee,
@@ -58,9 +58,14 @@ class MenuScreen extends ConsumerWidget {
         SliverToBoxAdapter(
           child: _CategoryTabs(
             selected: selectedCategory,
-            onChanged: (cat) =>
-                ref.read(selectedCategoryProvider.notifier).state = cat,
+            onChanged: (cat) {
+              ref.read(selectedCategoryProvider.notifier).state = cat;
+              ref.read(searchQueryProvider.notifier).state = '';
+            },
           ),
+        ),
+        SliverToBoxAdapter(
+          child: _SearchBar(),
         ),
         productsAsync.when(
           loading: () => const SliverFillRemaining(
@@ -101,6 +106,36 @@ class MenuScreen extends ConsumerWidget {
                 ),
         ),
       ],
+    );
+  }
+}
+
+class _SearchBar extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: TextField(
+        onChanged: (value) =>
+            ref.read(searchQueryProvider.notifier).state = value,
+        decoration: InputDecoration(
+          hintText: 'Search coffee...',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: ref.watch(searchQueryProvider).isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () =>
+                      ref.read(searchQueryProvider.notifier).state = '',
+                )
+              : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          filled: true,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+        ),
+      ),
     );
   }
 }
@@ -191,10 +226,10 @@ class _ProductCard extends StatelessWidget {
                 child: Image.network(
                   product.imageUrl,
                   fit: BoxFit.cover,
-                  loadingBuilder: (_, child, progress) => progress == null
+                  loadingBuilder: (ctx, child, progress) => progress == null
                       ? child
                       : const Center(child: CircularProgressIndicator()),
-                  errorBuilder: (_, _, _) => Container(
+                  errorBuilder: (ctx, err, st) => Container(
                     color: const Color(0xFFEFEBE9),
                     child: const Icon(
                       Icons.coffee,
