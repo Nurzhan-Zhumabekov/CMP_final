@@ -115,4 +115,4 @@ Settings
 
 ## Demo video
 
-[Watch the demo video](https://youu.be/OuVGdfvTE2k?si=10yrJ6tlOzo-na9X)
+https://youu.be/OuVGdfvTE2k?si=10yrJ6tlOzo-na9X
