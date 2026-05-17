@@ -7,22 +7,22 @@ A coffee shop mobile and web application built with Flutter. Users can browse th
 ## Team
 
 **Nurzhan Zhumabekov** (Nurzhan.D.Zhumabekov)
-- Project architecture (Clean Architecture)
-- REST API integration with Chopper
-- Navigation setup with go_router
-- Menu screen and product detail screen
+1. Project architecture (Clean Architecture)
+2. REST API integration with Chopper
+3. Navigation setup with go_router
+4. Menu screen and product detail screen
 
 **Nurassyl Nygmet** (NurasylAitu)
-- Light and dark theme toggle persisted with SharedPreferences
-- Favorites screen with local storage using Drift (SQLite)
-- Cart screen
-- Menu search with saved search history
+1. Light and dark theme toggle persisted with SharedPreferences
+2. Favorites screen with local storage using Drift (SQLite)
+3. Cart screen
+4. Menu search with saved search history
 
 **Nurbek Yerbulekov** (Bornqazaq)
-- Firebase Authentication (email and password sign in and registration)
-- Cloud Firestore for saving and displaying order history
-- Orders screen
-- Settings screen with account info and sign out
+1. Firebase Authentication (email and password sign in and registration)
+2. Cloud Firestore for saving and displaying order history
+3. Orders screen
+4. Settings screen with account info and sign out
 
 ---
 
