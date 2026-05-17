@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/cart_provider.dart';
+import '../../providers/orders_provider.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
@@ -42,7 +43,7 @@ class CartScreen extends ConsumerWidget {
                   child: ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (ctx, i) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final item = items[index];
                       return Card(
@@ -152,12 +153,20 @@ class CartScreen extends ConsumerWidget {
                       const SizedBox(width: 20),
                       Expanded(
                         child: FilledButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            final cart = ref.read(cartProvider);
+                            final orderTotal = ref.read(cartTotalProvider);
+                            await ref
+                                .read(ordersRepositoryProvider)
+                                .placeOrder(cart, orderTotal);
                             ref.read(cartProvider.notifier).clear();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Order placed successfully!')),
-                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                        Text('Order placed successfully!')),
+                              );
+                            }
                           },
                           child: const Text('Checkout'),
                         ),
