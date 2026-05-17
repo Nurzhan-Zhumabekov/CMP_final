@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../domain/entities/product.dart';
 import '../../providers/menu_provider.dart';
+import '../../providers/search_history_provider.dart';
 
 class MenuScreen extends ConsumerWidget {
   const MenuScreen({super.key});
@@ -110,32 +111,121 @@ class MenuScreen extends ConsumerWidget {
   }
 }
 
-class _SearchBar extends ConsumerWidget {
+class _SearchBar extends ConsumerStatefulWidget {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-      child: TextField(
-        onChanged: (value) =>
-            ref.read(searchQueryProvider.notifier).state = value,
-        decoration: InputDecoration(
-          hintText: 'Search coffee...',
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: ref.watch(searchQueryProvider).isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () =>
-                      ref.read(searchQueryProvider.notifier).state = '',
-                )
-              : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+  ConsumerState<_SearchBar> createState() => _SearchBarState();
+}
+
+class _SearchBarState extends ConsumerState<_SearchBar> {
+  final _ctrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _submit(String value) {
+    final q = value.trim();
+    if (q.isNotEmpty) {
+      ref.read(searchHistoryProvider.notifier).add(q);
+    }
+  }
+
+  void _selectHistory(String query) {
+    _ctrl.text = query;
+    _ctrl.selection =
+        TextSelection.collapsed(offset: query.length);
+    ref.read(searchQueryProvider.notifier).state = query;
+  }
+
+  void _clear() {
+    _ctrl.clear();
+    ref.read(searchQueryProvider.notifier).state = '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final query = ref.watch(searchQueryProvider);
+    final historyAsync = ref.watch(searchHistoryProvider);
+    final history = historyAsync.valueOrNull ?? [];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+          child: TextField(
+            controller: _ctrl,
+            onChanged: (v) =>
+                ref.read(searchQueryProvider.notifier).state = v,
+            onSubmitted: _submit,
+            decoration: InputDecoration(
+              hintText: 'Search coffee...',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: query.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: _clear,
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              contentPadding: const EdgeInsets.symmetric(vertical: 0),
+            ),
           ),
-          filled: true,
-          contentPadding: const EdgeInsets.symmetric(vertical: 0),
         ),
-      ),
+        if (query.isEmpty && history.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.history, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text('Recent',
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelSmall
+                            ?.copyWith(color: Colors.grey)),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () =>
+                          ref.read(searchHistoryProvider.notifier).clear(),
+                      style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                      child: const Text('Clear all',
+                          style: TextStyle(fontSize: 12)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: history
+                      .map((q) => InputChip(
+                            label: Text(q),
+                            onPressed: () => _selectHistory(q),
+                            onDeleted: () => ref
+                                .read(searchHistoryProvider.notifier)
+                                .remove(q),
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                          ))
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }
